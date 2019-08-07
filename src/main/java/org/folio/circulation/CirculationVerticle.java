@@ -19,6 +19,7 @@ import org.folio.circulation.resources.RequestCirculationRulesEngineResource;
 import org.folio.circulation.resources.RequestCollectionResource;
 import org.folio.circulation.resources.RequestHoldShelfClearanceResource;
 import org.folio.circulation.resources.RequestQueueResource;
+import org.folio.circulation.resources.ScheduledAnonymizationResource;
 import org.folio.circulation.resources.ScheduledNoticeProcessingResource;
 import org.folio.circulation.support.logging.Logging;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 
 public class CirculationVerticle extends AbstractVerticle {
+  private final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private HttpServer server;
 
   @Override
@@ -89,6 +91,7 @@ public class CirculationVerticle extends AbstractVerticle {
 
     new ScheduledNoticeProcessingResource(client).register(router);
 
+    new ScheduledAnonymizationResource(client).register(router);
 
     server.requestHandler(router::accept)
       .listen(config().getInteger("port"), result -> {
