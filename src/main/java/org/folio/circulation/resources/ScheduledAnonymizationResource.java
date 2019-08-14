@@ -46,17 +46,20 @@ public class ScheduledAnonymizationResource extends Resource {
       final WebContext context = new WebContext(routingContext);
       final Clients clients = Clients.create(context, client);
 
+    PeriodicForTenantsResource periodicResource = PeriodicForTenantsResource.getInstance();
 
-      if(!tenants.contains(context.getTenantId())){
+
+      if(!periodicResource.tenantExists(context.getTenantId())){
         log.info("New tenantId:{} added!",context.getTenantId());
-        tenants.add(context.getTenantId());
+       // tenants.add(context.getTenantId());
         Vertx vertx = routingContext.vertx();
-        vertx.setPeriodic(60 * 60, e -> vertx.executeBlocking(b -> {
+        long periodicId = vertx.setPeriodic(60 * 60, e -> vertx.executeBlocking(b -> {
             log.info("Periodic started...");
             getLoanById(clients);
           },
           res-> log.info("Finished")
         ));
+        periodicResource.addPeriodicIdForTenant(context.getTenantId(), periodicId);
       }
 
       //TODO: Logic for timeout configuration changing via Handler for periodic
